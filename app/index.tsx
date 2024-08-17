@@ -8,6 +8,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 const MAX_CARD_ITEMS = 3;
 const Main = () => {
   const [newData, setNewData] = React.useState<DataType[]>([...data, ...data]);
+  const [currentIndex, setCurrentIndex] = React.useState(0);
   return (
     <GestureHandlerRootView>
       <SafeAreaView style={styles.container}>
@@ -20,6 +21,7 @@ const Main = () => {
                 item={item}
                 index={index}
                 dataLength={newData.length}
+                currentIndex={currentIndex}
                 maxVisibleItems={MAX_CARD_ITEMS}
               />
             );
