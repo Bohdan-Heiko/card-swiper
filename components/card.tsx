@@ -1,6 +1,8 @@
 import { DataType } from "@/utils/data";
 import React from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import Animated, { useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 
 type Props = {
   // newData: DataType[];
@@ -15,40 +17,52 @@ type Props = {
 };
 
 const Card = ({ item, index, dataLength, maxVisibleItems }: Props) => {
-  return (
-    <View
-      style={[
-        styles.container,
-        {
-          zIndex: dataLength - index,
-          backgroundColor: item.backgroundColor,
-          opacity: index < maxVisibleItems ? 1 : 0,
-          transform: [{ scale: 1 - index * 0.05 }, { translateY: index * -30 }],
-        },
+  const translateX = useSharedValue(0);
+  const pan = Gesture.Pan().onUpdate((e) => {
+    translateX.value = e.translationX;
+  });
 
-        // animatedStyle,
-      ]}
-    >
-      <View style={styles.top}>
-        <Text style={styles.textName}>{item.name}</Text>
-        <View style={styles.imageContainer}>
-          <Image source={item.image} style={styles.image} />
+  const cardAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateX: translateX.value }],
+    };
+  });
+  return (
+    <GestureDetector gesture={pan}>
+      <Animated.View
+        style={[
+          styles.container,
+          {
+            zIndex: dataLength - index,
+            backgroundColor: item.backgroundColor,
+            opacity: index < maxVisibleItems ? 1 : 0,
+            transform: [{ scale: 1 - index * 0.05 }, { translateY: index * -30 }],
+          },
+          cardAnimatedStyle,
+          // animatedStyle,
+        ]}
+      >
+        <View style={styles.top}>
+          <Text style={styles.textName}>{item.name}</Text>
+          <View style={styles.imageContainer}>
+            <Image source={item.image} style={styles.image} />
+          </View>
         </View>
-      </View>
-      <View style={styles.middle}>
-        <Text style={styles.textNumber}>{item.number}</Text>
-      </View>
-      <View style={styles.bottom}>
-        <View>
-          <Text style={styles.text}>Valid thru</Text>
-          <Text style={styles.text}>{item.exp}</Text>
+        <View style={styles.middle}>
+          <Text style={styles.textNumber}>{item.number}</Text>
         </View>
-        <View>
-          <Text style={styles.text}>Cvv</Text>
-          <Text style={styles.text}>{item.cvv}</Text>
+        <View style={styles.bottom}>
+          <View>
+            <Text style={styles.text}>Valid thru</Text>
+            <Text style={styles.text}>{item.exp}</Text>
+          </View>
+          <View>
+            <Text style={styles.text}>Cvv</Text>
+            <Text style={styles.text}>{item.cvv}</Text>
+          </View>
         </View>
-      </View>
-    </View>
+      </Animated.View>
+    </GestureDetector>
   );
 };
 
