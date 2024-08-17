@@ -4,24 +4,36 @@ import { Image, StyleSheet, Text, useWindowDimensions, View } from "react-native
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   interpolate,
+  runOnJS,
+  SharedValue,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
 
 type Props = {
-  // newData: DataType[];
-  // setNewData: React.Dispatch<React.SetStateAction<DataType[]>>;
   item: DataType;
   index: number;
   dataLength: number;
+  newData: DataType[];
   currentIndex: number;
   maxVisibleItems: number;
-  // animatedValue: SharedValue<number>;
-  // setCurrentIndex: React.Dispatch<React.SetStateAction<number>>;
+  animatedValue: SharedValue<number>;
+  setNewData: React.Dispatch<React.SetStateAction<DataType[]>>;
+  setCurrentIndex: React.Dispatch<React.SetStateAction<number>>;
 };
 
-const Card = ({ item, index, dataLength, maxVisibleItems, currentIndex }: Props) => {
+const Card = ({
+  item,
+  index,
+  newData,
+  dataLength,
+  currentIndex,
+  animatedValue,
+  maxVisibleItems,
+  setNewData,
+  setCurrentIndex,
+}: Props) => {
   const { width } = useWindowDimensions();
   const translateX = useSharedValue(0);
   const direction = useSharedValue(0);
@@ -33,14 +45,21 @@ const Card = ({ item, index, dataLength, maxVisibleItems, currentIndex }: Props)
 
       if (currentIndex === index) {
         translateX.value = e.translationX;
+
+        animatedValue.value = interpolate(Math.abs(e.translationX), [0, width], [index, index + 1]);
       }
     })
     .onEnd((e) => {
       if (currentIndex === index) {
-        if (Math.abs(e.translationX) > 150) {
-          translateX.value = withTiming(width * direction.value, { duration: 500 });
+        if (Math.abs(e.translationX) > 150 || Math.abs(e.velocityX) > 1000) {
+          translateX.value = withTiming(width * direction.value, { duration: 500 }, () => {
+            runOnJS(setCurrentIndex)(currentIndex + 1);
+            runOnJS(setNewData)([...newData, newData[currentIndex]]);
+          });
+          animatedValue.value = withTiming(currentIndex + 1, { duration: 500 });
         } else {
           translateX.value = withTiming(0, { duration: 500 });
+          animatedValue.value = withTiming(currentIndex, { duration: 500 });
         }
       }
     });
@@ -50,14 +69,18 @@ const Card = ({ item, index, dataLength, maxVisibleItems, currentIndex }: Props)
 
     const rotateZ = interpolate(Math.abs(translateX.value), [0, width], [0, 20]);
 
+    const translateY = interpolate(animatedValue.value, [index - 1, index], [-30, 0]);
+    const scale = interpolate(animatedValue.value, [index - 1, index], [0.9, 1]);
+    const opacity = interpolate(animatedValue.value + maxVisibleItems, [index, index + 1], [0, 1]);
+
     return {
       transform: [
         { translateX: translateX.value },
-        { scale: 1 - index * 0.05 },
-        { translateY: index * -30 },
+        { scale: currentItem ? 1 : scale },
+        { translateY: currentItem ? 0 : translateY },
         { rotateZ: currentItem ? `${direction.value * rotateZ}deg` : "0deg" },
       ],
-      opacity: index < maxVisibleItems ? 1 : 0,
+      opacity: index < maxVisibleItems + currentIndex ? 1 : opacity,
     };
   });
   return (

@@ -23,13 +23,13 @@ export interface DataType {
 const data: DataType[] = [
   {
     cardId: 1,
-    name: "Rakha Wibowo",
+    name: "Jony Doe",
     number: "1234 5678 9101 1121",
     exp: "12/29",
     cvv: "123",
     type: "mastercard",
     image: require("../../assets/images/Mastercard.png"),
-    backgroundColor: "#6d85a4",
+    backgroundColor: "#abe9ff",
     activity: [
       {
         name: "Netflix",
@@ -84,13 +84,13 @@ const data: DataType[] = [
   },
   {
     cardId: 2,
-    name: "Rakha Wibowo",
+    name: "Nick Smith",
     number: "1234 5678 9101 1121",
     exp: "12/29",
     cvv: "123",
     type: "visa",
     image: require("../../assets/images/Visa.png"),
-    backgroundColor: "#86b4ee",
+    backgroundColor: "#3f51b5",
     activity: [
       {
         name: "Paypal",
@@ -110,13 +110,13 @@ const data: DataType[] = [
   },
   {
     cardId: 3,
-    name: "Rakha Wibowo",
+    name: "Rhonaldo Cristiano",
     number: "1234 5678 9101 1121",
     exp: "12/29",
     cvv: "123",
     type: "visa",
     image: require("../../assets/images/Visa.png"),
-    backgroundColor: "#795de7",
+    backgroundColor: "#86b4ee",
     activity: [
       {
         name: "Apple TV",
